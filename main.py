@@ -30,7 +30,7 @@ import math
 import logging
 import traceback
 
-VERSION = "v0.962"
+VERSION = "v0.970"
 
 class TitleScreenRedraw(object):
 
@@ -335,6 +335,16 @@ def view_quarantine(tsrd):
 
     mymenu.query()
 
+def test_map_generator(_tsrd):
+    intscene = gears.GearHeadScene(30, 30, "Wujung Hospital", player_team=None, civilian_team=None,
+                                   attributes=(
+                                       gears.tags.SCENE_PUBLIC, gears.tags.SCENE_BUILDING,
+                                       gears.tags.SCENE_HOSPITAL),
+                                   scale=gears.scale.HumanScale)
+    intscenegen = pbge.randmaps.PackedBuildingGenerator(intscene, game.content.gharchitecture.HospitalBuilding())
+    intscene.contents.append(pbge.randmaps.rooms.ClosedRoom(anchor=pbge.randmaps.anchors.south, ))
+    intscene.contents.append(pbge.randmaps.rooms.ClosedRoom())
+    pbge.randmaps.debugviewer.DebugViewer.test_map_generation(intscene, intscenegen)
 
 def play_the_game():
     gears.init_gears()
@@ -363,19 +373,12 @@ def play_the_game():
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta),flags=pygame.RLEACCELOK)""",setup='import pygame, pbge, gears',number=10)
     # print timeit.timeit("""mypic = pbge.image.Image('mecha_buruburu.png',color=(gears.color.ArmyDrab,gears.color.ShiningWhite,gears.color.ElectricYellow,gears.color.GullGrey,gears.color.Terracotta))""",setup='import pbge, gears',number=10)
 
-    #fname = "WIP_JjangBogo.png"
-    #mypic = pbge.image.Image(fname, color=(gears.color.HeavyPurple, gears.color.MediumSkin, gears.color.Beige, gears.color.Saffron, gears.color.PirateSunrise))
+    #fname = "cha_m_polic.png"
+    #mypic = pbge.image.Image(fname, color=(gears.color.Cyan, gears.color.SteelBlue, gears.color.BlackRose, gears.color.Aquamarine, gears.color.Leather))
     #mydest = pygame.Surface((mypic.frame_width, mypic.frame_height))
     #mydest.fill((0, 0, 255))
     #mypic.render((0,0),dest_surface=mydest)
     #pygame.image.save(mydest, pbge.util.user_dir("out_"+fname))
-
-    #a = gears.selector.get_design_by_full_name("Heavy Duty Duct Tape")
-    #b = gears.selector.get_design_by_full_name("10 Pack Antidote")
-    #c = gears.selector.get_design_by_full_name("5 Pack Quick Fix Pill")
-    #print(a, a.cost, a.shop_rank())
-    #print(b, b.cost, b.shop_rank())
-    #print(c, c.cost, c.shop_rank())
 
     #a = gears.base.Treasure(value=1000)
     #b = gears.base.Treasure(value=100000, material=gears.materials.Advanced)
@@ -413,6 +416,7 @@ def play_the_game():
             if pbge.util.config.getboolean("GENERAL", "dev_mode_on"):
                 mymenu.add_item("Edit Scenario", game.scenariocreator.start_plot_creator)
                 mymenu.add_item("Compile Plot Bricks", game.scenariocreator.PlotBrickCompiler)
+                mymenu.add_item("Test Map Generator", test_map_generator)
                 #mymenu.add_item("Eggzamination", game.devstuff.Eggzaminer)
                 #mymenu.add_item("Just Show Background", just_show_background)
                 #mymenu.add_item("Test Adventure Generation", TestStartGame)

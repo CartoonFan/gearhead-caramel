@@ -76,9 +76,9 @@ class DefaultTargeter(object):
         best_candidates = [tar for tar in candidates if camp.scene.distance(self.npc.pos, tar.pos) <= optrange]
         if best_candidates:
             return max(best_candidates, key=lambda a: [
+                self.closest_target_selector(camp, a),
                 self.easiest_target_selector(camp, a),
                 self.most_damaged_target_selector(camp, a),
-                self.closest_target_selector(camp, a)
             ])
         elif candidates:
             return max(candidates, key=lambda a: [
@@ -248,7 +248,7 @@ class BasicAI(object):
 
     def attempt_jump_to_better_position(self, camp):
         # Check for a better tile.
-        jump_points = jumping.get_jump_points(camp, self.npc)
+        jump_points = list(jumping.get_jump_points(camp, self.npc))
         sample = random.sample(jump_points, max(len(jump_points) // 3, min(10, len(jump_points))))
         self.camp = camp
         self.minr, self.midr, self.maxr = self.get_min_mid_max_range()
@@ -374,7 +374,7 @@ class BasicAI(object):
             # Otherwise attempt skill use again.
             if not (self.target and self.target in camp.scene.contents and self.target.is_operational()):
                 self.target = self.targeter.get_target(camp, self.midr)
-            elif random.randint(1, 3) == 1:
+            elif random.randint(1, 3) != 1:
                 self.target = self.targeter.get_target(camp, self.midr)
             if self.target:
                 self.attempt_attack(camp)

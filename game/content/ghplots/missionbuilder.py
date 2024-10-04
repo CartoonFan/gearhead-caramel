@@ -5,7 +5,7 @@ import pbge
 import pygame
 import random
 from game import teams, ghdialogue
-from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility
+from game.content import gharchitecture, ghterrain, ghwaypoints, plotutility, missiontext
 from pbge.dialogue import Offer, ContextTag, Reply
 from game.ghdialogue import context
 from game.content.ghcutscene import SimpleMonologueDisplay
@@ -14,6 +14,7 @@ from gears import champions
 from game.content.dungeonmaker import DG_NAME, DG_ARCHITECTURE, DG_SCENE_TAGS, DG_MONSTER_TAGS, DG_TEMPORARY, \
     DG_PARENT_SCENE, DG_EXPLO_MUSIC, DG_COMBAT_MUSIC, DG_DECOR
 import copy
+from game.content import missiontext
 
 # Mecha Objectives
 BAMO_AID_ALLIED_FORCES = "BAMO_AidAlliedForces"
@@ -55,6 +56,7 @@ BAMOP_FIND_HERBS = "BAMOP_FIND_HERBS"
 BAMOP_DUNGEONLIKE = "BAMOP_DUNGEONLIKE"
 BAMEP_MONSTER_TYPE = "BAMEP_MONSTER_TYPE"
 BAMOP_EXTERMINATE_MONSTERS = "BAMOP_EXTERMINATE_MONSTERS"
+BAMOP_REPAIR_MACHINE = "BAMOP_REPAIR_MACHINE"
 BAMOP_RESCUE_VICTIM = "BAMOP_RESCUE_VICTIM"
 BAMEP_VICTIM_NAME = "BAMEP_VICTIM_NAME"
 
@@ -435,9 +437,9 @@ class EscortMissionPlot(BuildAMissionPlot):
             self.elements["ENTRANCE_ANCHOR"] = myanchor
         myscene: gears.GearHeadScene = self.elements["LOCALE"]
         if myanchor in (pbge.randmaps.anchors.east, pbge.randmaps.anchors.west):
-            corridor = pbge.randmaps.rooms.OpenRoom(width=myscene.width, height=14, anchor=pbge.randmaps.anchors.west)
+            corridor = pbge.randmaps.rooms.OpenRoom(width=myscene.width, height=15, anchor=pbge.randmaps.anchors.west)
         else:
-            corridor = pbge.randmaps.rooms.OpenRoom(width=14, height=myscene.height, anchor=pbge.randmaps.anchors.north)
+            corridor = pbge.randmaps.rooms.OpenRoom(width=15, height=myscene.height, anchor=pbge.randmaps.anchors.north)
         self.register_element("ESCORT_PATH", corridor, dident="LOCALE")
         interior_anchors = list(pbge.randmaps.anchors.ADJACENT_ANCHORS[myanchor])
         random.shuffle(interior_anchors)
@@ -445,7 +447,7 @@ class EscortMissionPlot(BuildAMissionPlot):
         self.register_element("_ENTRANCE",
                               game.content.ghwaypoints.Exit(anchor=pbge.randmaps.anchors.middle, plot_locked=True),
                               dident="ENTRANCE_ROOM")
-        self.register_element("ESCORT_ROOM", pbge.randmaps.rooms.OpenRoom(7, 7, anchor=interior_anchors[1]), dident="ESCORT_PATH")
+        self.register_element("ESCORT_ROOM", pbge.randmaps.rooms.OpenRoom(8, 8, anchor=interior_anchors[1]), dident="ESCORT_PATH")
 
 
 #   ****************************
@@ -1906,6 +1908,77 @@ class BAMP_ExterminateMonsters(Plot):
 
         if len(myteam.get_members_in_play(camp)) < 1:
             self.obj.win(camp, 100)
+
+
+class BAM_RepairMachine(Plot):
+    LABEL = BAMOP_REPAIR_MACHINE
+    active = True
+    scope = "LOCALE"
+
+    MACHINE_DESC = (
+        "This machine is oozing black fluid. That can't possibly be good.",
+        "This machine is completely shut down. It does not appear to be receiving power.",
+        "Someone or something smashed this machine real good. It's going to take a lot of work to put it back together.",
+        "This machine appears to be in perfect working order except for the flashing red light on top."
+    )
+
+    MACHINE_CLASSES = (
+        ghwaypoints.OldTerminal, ghwaypoints.OldMainframe
+    )
+
+    def custom_init(self, nart):
+        myscene = self.elements["LOCALE"]
+        roomtype = self.elements["ARCHITECTURE"].get_a_room()
+        myroom = self.register_element("ROOM", roomtype(
+            random.randint(5,10), random.randint(5,10), decorate=gharchitecture.DefiledFactoryDecor()
+        ), dident="LOCALE")
+
+        myteam = self.register_element("_eteam", teams.Team(enemies=(myscene.player_team,)), dident="ROOM")
+
+        myclass = random.choice(self.MACHINE_CLASSES)
+        mymachine = self.register_element("MACHINE", myclass(
+            name="Machine", plot_locked=True, anchor=pbge.randmaps.anchors.middle,
+            desc=random.choice(self.MACHINE_DESC)
+        ), dident="ROOM")
+
+        self.obj = adventureseed.MissionObjective("Locate and repair the broken machinery", MAIN_OBJECTIVE_VALUE*2)
+        self.adv.objectives.append(self.obj)
+
+        self.repaired_machine = False
+        self.tries = random.randint(1,3)
+
+        return True
+
+    def MACHINE_menu(self, camp, thingmenu):
+        if not self.repaired_machine and not camp.fight:
+            thingmenu.add_item("Repair machine", self._repair_machine)
+
+    def _repair_machine(self, camp: gears.GearHeadCampaign):
+        if camp.do_skill_test(
+            gears.stats.Craft, gears.stats.Repair, self.rank, difficulty=gears.stats.DIFFICULTY_HARD
+        ):
+            pbge.alert("You have repaired the machine.")
+            self.elements["MACHINE"].desc = "The machine appears to be working normally now."
+            self.repaired_machine = True
+            self.obj.win(camp, 100)
+            camp.dole_xp(100, gears.stats.Repair)
+        elif self.tries < 1:
+            pbge.alert("After several failed attempts, you have bodged this machine into a semblance of normal operation. Hopefully it will keep running long enough for you to get out of here.")
+            self.elements["MACHINE"].desc = "The machine appears to be working now. Mostly. You hope."
+            self.repaired_machine = True
+            self.obj.win(camp, 65)
+            camp.dole_xp(100, gears.stats.Repair)
+        else:
+            self.tries -= 1
+            pbge.alert("You attempt to repair the machine. The noise you make attracts monsters!")
+            myunit = gears.selector.RandomMonsterUnit(
+                self.rank, random.randint(90, 120), camp.scene.environment,
+                self.elements.get(BAMEP_MONSTER_TYPE, ("ROBOT", "FACTORY")), camp.scene.scale
+            )
+            mek1 = myunit.contents[0]
+            team2 = self.elements.get("_eteam")
+            camp.scene.deploy_team(myunit.contents, team2, self.elements["ROOM"].area)
+            game.combat.enter_combat(camp, mek1)
 
 
 class BAM_RescueVictim(Plot):

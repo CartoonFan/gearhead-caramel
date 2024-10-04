@@ -599,13 +599,13 @@ DEFAULT_GRAMMAR = {
         # NOTE: This grammar tag is for opponent NPC use only! It calls on the [objective_ep] tag.
         Default: [
             "[THREATEN]", "To [objective_ep] I will [defeat_you]!",
-            "This will be payback for the time [MEM_LoseToPC]!"
+            "This will be payback for the time [MEM_LoseToPC]!",
             "Before [MEM_LoseToPC], but this time I will [defeat_you]!",
-            "Remember when [MEM_DefeatPC]? I'm going to [defeat_you] again."
+            "Remember when [MEM_DefeatPC]? I'm going to [defeat_you] again.",
         ],
         personality.Cheerful: [
             "Time to party.", "You can't stop me now; I will [objective_ep]!",
-            "Remember when [MEM_LoseToPC]? I've been waiting for payback!"
+            "Remember when [MEM_LoseToPC]? I've been waiting for payback!",
             "Remember when [MEM_DefeatPC]? I'll enjoy doing that again."
         ],
         personality.Grim: [
@@ -616,21 +616,21 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Easygoing: [
             "Shall we get started? Alright.",
-            "You might not like it, but I will [objective_ep]."
-            "You know, [speaker_faction] gave me a hard time when [MEM_LoseToPC]. This time I'll [defeat_you]."
+            "You might not like it, but I will [objective_ep].",
+            "You know, [speaker_faction] gave me a hard time when [MEM_LoseToPC]. This time I'll [defeat_you].",
         ],
         personality.Passionate: [
             "Show me what you have.",
             "I will unleash my full power to [objective_ep]!",
             "While you were wandering around, I was studying the [weapon]!",
-            "My purpose in life is to flip out and [defeat_you]!"
+            "My purpose in life is to flip out and [defeat_you]!",
         ],
         personality.Sociable: [
             "That's big talk. Prove it to me.",
             "You know what I'm going to do? [THREATEN]",
             "You think you can defeat me, but I will [objective_ep]. Would I waste time talking to you if I thought you had a chance of winning?",
             "[THREATEN] That's right, I said it.",
-            "[chat_lead_in] you're about to get your arse kicked."
+            "[chat_lead_in] you're about to get your arse kicked.",
         ],
         personality.Shy: [
             "Shut up and fight.",
@@ -638,27 +638,27 @@ DEFAULT_GRAMMAR = {
         ],
         personality.Justice: [
             "For great justice!",
-            "You deserve a thwomping for that time [MEM_LoseToPC]!"
+            "You deserve a thwomping for that time [MEM_LoseToPC]!",
         ],
         personality.Glory: [
             "May the best fighter win!",
             "I've been practicing since [MEM_LoseToPC]; this time I'll come out on top!",
-            "Have you improved since [MEM_DefeatPC]? Let's find out."
+            "Have you improved since [MEM_DefeatPC]? Let's find out.",
         ],
         personality.Duty: [
             "I will [objective_ep], as is my duty!",
-            "In the name of [speaker_faction], I will not be defeated!"
+            "In the name of [speaker_faction], I will not be defeated!",
         ],
         personality.Fellowship: [
-            "I cannot disappoint [speaker_faction]; I must [defeat_you]."
+            "I cannot disappoint [speaker_faction]; I must [defeat_you].",
         ],
         LIKE: [
             "It's sad that we're on differtent sides, but I must [objective_ep].",
-            "I like you, but [speaker_faction] pays the bills, so... [THREATEN]"
+            "I like you, but [speaker_faction] pays the bills, so... [THREATEN]",
         ],
         DISLIKE: [
             "It'll be my pleasure to [defeat_you].",
-            "I want to [defeat_you] for that time [MEM_LoseToPC]."
+            "I want to [defeat_you] for that time [MEM_LoseToPC].",
         ]
     },
 
@@ -2813,6 +2813,25 @@ DEFAULT_GRAMMAR = {
         ],
     },
 
+    "[I_GOT_A_MISSION_OFFER]": {
+        # A lancemate is telling the PC that they just received a mission offer.
+        Default: ["I just got a mission offer.", "I've received a mission offer.",
+                  "I got an urgent message from [foaf]..."
+                  ],
+        personality.Cheerful: ["We're in luck; someone wants to hire us."
+                               ],
+        personality.Grim: ["There's trouble afoot... and we've been asked to deal with it.",
+                           ],
+        personality.Easygoing: ["Hey, if you're interested, [foaf] just sent me a mission offer.",
+                                ],
+        personality.Passionate: ["I just got a message- someone needs our talents!",
+                                 ],
+        personality.Sociable: ["[audience], I was chatting with [foaf] and [subject_pronoun] has a mission we might be able to do.",
+                               ],
+        personality.Shy: ["I received a mission offer.",
+                          ],
+    },
+
     "[I_HAVE_BEEN_IMMOBILIZED]": {
         # A lancemate has suffered a mobility kill.
         Default: ["I have been immobilized!", "[SWEAR] I can't move this thing."
@@ -3235,6 +3254,46 @@ DEFAULT_GRAMMAR = {
         Default: [
             "guitar", "keytar", "drums", "violin", "bass", "synthesizer", "organ",
             "mandolin", "theremin", "turntable", "piano", "saxophone", "melodica"
+        ]
+    },
+
+    "[insult]": {
+        # Noun phrase describing a character unfavorably.
+        Default: [
+            "jerk", "arsehole",
+        ],
+        personality.Cheerful: [
+            "killjoy", "downer", "asshat"
+        ],
+        personality.Grim: [
+            "pain in the arse", "waste of carbon", "ash-gibbon"
+        ],
+        personality.Easygoing: [
+            "bad person", "doody head", "numbskull"
+        ],
+        personality.Passionate: [
+            "sniveling worm", "abomination", "coward", "jackass"
+        ],
+        personality.Sociable: [
+            "nobody", "brat", "piece of trash", "undesirable"
+        ],
+        personality.Shy: [
+            "loudmouth", "git"
+        ],
+        personality.Justice: [
+            "scoundrel", "scumbag"
+        ],
+        personality.Peace: [
+            "meanie", "brute",
+        ],
+        personality.Glory: [
+            "lowlife", "gorf herder", "wannabe"
+        ],
+        personality.Fellowship: [
+            "creep", "slimeball"
+        ],
+        personality.Duty: [
+            "weasel", "delinquent"
         ]
     },
 

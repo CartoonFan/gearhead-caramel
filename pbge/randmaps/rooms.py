@@ -195,13 +195,11 @@ class Room(object):
             self.area.x += 1
             self.area.width -= 1
         elif self.area.x + self.area.width >= gb.width:
-            self.area.x -= 1
             self.area.width -= 1
         if self.area.y == 0:
             self.area.y += 1
             self.area.height -= 1
         elif self.area.y + self.area.height >= gb.height:
-            self.area.y -= 1
             self.area.height -= 1
 
     def build(self, gb, archi):
@@ -334,6 +332,8 @@ class Room(object):
         if x >= gb.width - 1 or y >= gb.height - 1:
             return False
         elif inspect.isclass(wall) and issubclass(wall, terrain.DoorTerrain):
+            return False
+        elif hasattr(wall, "TAKES_WALL_DECOR") and not wall.TAKES_WALL_DECOR:
             return False
         elif (self.is_basic_wall(gb, x - 1, y) and
               self.is_basic_wall(gb, x + 1, y) and
